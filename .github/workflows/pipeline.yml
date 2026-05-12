@@ -1,21 +1,19 @@
 name: CI/CD DevOps Pipeline
 
-# Esto le dice a GitHub que ejecute el pipeline cuando subas código a la rama 'main'
 on:
   push:
     branches: [ "main" ]
 
 jobs:
   construccion-y-pruebas:
-    # El servidor virtual que nos presta GitHub para trabajar
     runs-on: ubuntu-latest
 
     steps:
     - name: 1. Clonar el repositorio
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Actualizado a v4 para quitar la advertencia amarilla
 
     - name: 2. Configurar Python 3.9
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5 # Actualizado a v5
       with:
         python-version: "3.9"
 
@@ -26,7 +24,7 @@ jobs:
 
     - name: 4. Ejecutar Pruebas Unitarias (PyTest)
       run: |
-        pytest test_app.py
+        python -m pytest test_app.py  # Llamamos a pytest a través de python para evitar el error 127
 
     - name: 5. Construir Contenedor Docker
       run: |
@@ -34,5 +32,5 @@ jobs:
 
     - name: 6. Probar Orquestación (Docker Compose)
       run: |
-        docker-compose up -d
-        docker-compose down
+        docker compose up -d  # Quitamos el guion (ahora es "docker compose")
+        docker compose down
