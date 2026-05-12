@@ -8,21 +8,33 @@ def client():
         yield client
 
 def test_health_check(client):
-    respuesta = client.get('/api/health')
-    assert respuesta.status_code == 200
+    rv = client.get('/health')
+    assert rv.status_code == 200
+    assert b'ok' in rv.data
 
-def test_obtener_productos(client):
-    respuesta = client.get('/api/productos')
-    assert respuesta.status_code == 200
-    assert len(respuesta.get_json()["productos"]) >= 2
+def test_get_productos(client):
+    rv = client.get('/productos')
+    assert rv.status_code == 200
+    assert b'Torta de Chocolate' in rv.data
 
-def test_crear_producto_exitoso(client):
-    nuevo_prod = {"nombre": "Cheesecake", "precio": 14000, "stock": 8}
-    respuesta = client.post('/api/productos', json=nuevo_prod)
-    assert respuesta.status_code == 201
-    assert respuesta.get_json()["producto"]["nombre"] == "Cheesecake"
+def test_create_producto(client):
+    rv = client.post('/productos', json={"nombre": "Galletas", "precio": 5000})
+    assert rv.status_code == 201
+    assert b'Galletas' in rv.data
 
-def test_crear_producto_fallido(client):
-    prod_malo = {"nombre": "Galletas sin precio"}
-    respuesta = client.post('/api/productos', json=prod_malo)
-    assert respuesta.status_code == 400
+def test_create_producto_invalido(client):
+    # Prueba de manejo de error 400
+    rv = client.post('/productos', json={"nombre": "Galletas"}) # Falta el precio
+    assert rv.status_code == 400
+    assert b'Faltan datos requeridos' in rv.data
+
+def test_update_producto(client):
+    rv = client.put('/productos/1', json={"precio": 16000})
+    assert rv.status_code == 200
+    assert b'16000' in rv.data
+
+def test_delete_producto_no_existente(client):
+    # Prueba de manejo de error 404
+    rv = client.delete('/productos/999')
+    assert rv.status_code == 404
+    assert b'no existe' in rv.data
