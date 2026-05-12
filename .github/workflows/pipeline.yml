@@ -19,7 +19,7 @@ jobs:
         fetch-depth: 0 # Importante para que SonarCloud pueda ver el historial
 
     - name: 2. Configurar Python 3.9
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.9"
 
