@@ -30,3 +30,12 @@ Para correr las pruebas localmente (requiere entorno Python):
 
 pip install -r requirements.txt
 pytest test_app.py -v
+
+## 🔍 Trazabilidad y Calidad (Cumplimiento IE4)
+
+Para garantizar la **trazabilidad** del proyecto, cada cambio realizado mediante *commits* o *Pull Requests* a la rama `main` dispara automáticamente nuestro pipeline de CI/CD en GitHub Actions. Esto deja un registro histórico e inmutable en la pestaña "Actions", donde se puede trazar exactamente qué versión del código se integró, quién lo hizo, a qué hora, y el resultado detallado de cada etapa del proceso.
+
+La **calidad** y fiabilidad en cada despliegue se asegura mediante múltiples capas en el pipeline:
+1. Ejecución automática de pruebas unitarias (Pytest) que cubren el CRUD de la API.
+2. Validación de sintaxis y prevención de vulnerabilidades mediante herramientas de análisis estático y de dependencias (Dependabot / SonarCloud).
+3. Construcción y orquestación inmutable mediante contenedores (Docker), garantizando que si el entorno falla, el código defectuoso nunca se despliegue.
