@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  api-pasteleria:
+    build: .
+    container_name: pasteleria_devops
+    ports:
+      - "5000:5000"
+    restart: always
