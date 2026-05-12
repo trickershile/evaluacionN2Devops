@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Revisa vulnerabilidades en las dependencias de Python
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Revisa vulnerabilidades en la imagen base de Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Revisa vulnerabilidades en nuestro propio Pipeline
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
