@@ -41,7 +41,8 @@ jobs:
       uses: SonarSource/sonarcloud-github-action@v2.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}# <-- También como variable de entorno por si acaso
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
     - name: 7. Probar Orquestación (Docker Compose)
       run: |
         docker compose up -d
