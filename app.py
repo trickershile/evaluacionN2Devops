@@ -145,7 +145,7 @@ def delete_producto(id):
     global productos
     producto = next((p for p in productos if p['id'] == id), None)
     
-    # Manejo de Errores: 404 Not Found
+
     if not producto:
         return jsonify({"error": f"El producto con ID {id} no existe"}), 404
 

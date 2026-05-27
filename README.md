@@ -39,3 +39,4 @@ La **calidad** y fiabilidad en cada despliegue se asegura mediante múltiples ca
 1. Ejecución automática de pruebas unitarias (Pytest) que cubren el CRUD de la API.
 2. Validación de sintaxis y prevención de vulnerabilidades mediante herramientas de análisis estático y de dependencias (Dependabot / SonarCloud).
 3. Construcción y orquestación inmutable mediante contenedores (Docker), garantizando que si el entorno falla, el código defectuoso nunca se despliegue.
+.
