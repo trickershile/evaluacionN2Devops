@@ -40,7 +40,7 @@ jobs:
         python -m pytest test_app.py
 
     - name: 6. Análisis de Seguridad y Código con SonarCloud
-      uses: SonarSource/sonarqube-scan-action@v5.0.0
+      uses: SonarSource/sonarqube-scan-action@v6.0.0
       with:
         sonar.token: ${{ secrets.SONAR_TOKEN }}
       env:
