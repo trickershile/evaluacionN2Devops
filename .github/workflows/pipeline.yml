@@ -38,12 +38,10 @@ jobs:
         python -m pytest test_app.py
 
     - name: 6. Análisis de Seguridad y Código con SonarCloud
-      uses: SonarSource/sonarcloud-github-action@v3.0.0
-      with:
-        token: ${{ secrets.SONAR_TOKEN }} # <-- Forzado explícitamente aquí
+      uses: SonarSource/sonarcloud-github-action@v2.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # <-- También como variable de entorno por si acaso
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}# <-- También como variable de entorno por si acaso
     - name: 7. Probar Orquestación (Docker Compose)
       run: |
         docker compose up -d
