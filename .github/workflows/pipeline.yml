@@ -39,10 +39,11 @@ jobs:
 
     - name: 6. Análisis de Seguridad y Código con SonarCloud
       uses: SonarSource/sonarcloud-github-action@v3.0.0
+      with:
+        token: ${{ secrets.SONAR_TOKEN }} # <-- Forzado explícitamente aquí
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # <-- También como variable de entorno por si acaso
     - name: 7. Probar Orquestación (Docker Compose)
       run: |
         docker compose up -d
