@@ -40,11 +40,11 @@ jobs:
         python -m pytest test_app.py
 
     - name: 6. Análisis de Seguridad y Código con SonarCloud
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarqube-scan-action@v5.0.0
+      with:
+        sonar.token: ${{ secrets.SONAR_TOKEN }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
     - name: 7. Probar Orquestación (Docker Compose)
       run: |
         # Esto valida el IE5: orquestación de contenedores
