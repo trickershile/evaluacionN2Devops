@@ -153,4 +153,5 @@ def delete_producto(id):
     return jsonify({"mensaje": "Producto eliminado exitosamente"}), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # Apagamos el debug o lo controlamos por entorno para producción
+    app.run(debug=False, host='0.0.0.0', port=5000)
