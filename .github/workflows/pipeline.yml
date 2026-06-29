@@ -1,17 +1,21 @@
-name: CI/CD DevOps Pipeline Avanzado
+name: CI/CD DevOps Pipeline Avanzado con Observabilidad
 
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ] # Necesario para las Branch Protection Rules (IE5)
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  construccion-pruebas-y-publicacion:
+  # ==========================================
+  # JOB 1: VALIDACIÓN DE CALIDAD Y PRUEBAS (CI)
+  # ==========================================
+  pruebas-y-calidad:
     runs-on: ubuntu-latest
-
     steps:
     - name: 1. Clonar el repositorio
       uses: actions/checkout@v4
@@ -27,38 +31,73 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install flake8 
+        pip install pytest-cov flake8
 
-    - name: 4. Análisis de Calidad de Código (Linter)
+    - name: 4. Ejecutar Pruebas Unitarias con Reporte de Cobertura (IE3)
       run: |
-        echo "Saltando linter por compatibilidad de formato"
+        # Generamos un reporte xml de cobertura para que SonarCloud lo use en el Dashboard
+        python -m pytest --cov=. --cov-report=xml test_app.py
 
-    - name: 5. Ejecutar Pruebas Unitarias (PyTest)
-      run: |
-        python -m pytest test_app.py
-
-    - name: 6. Análisis de Seguridad y Código con SonarCloud
+    - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5)
       uses: SonarSource/sonarcloud-github-action@v2.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    - name: 7. Probar Orquestación (Docker Compose)
+    # MECANISMO DE PARADA CRÍTICA (IE6): Si el Quality Gate de SonarCloud falla, el pipeline se detiene aquí.
+    - name: 6. Validar Límites de Calidad (Quality Gate Break)
+      uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ==========================================
+  # JOB 2: EMPAQUETADO Y EMISIÓN DE IMAGEN DOCKER
+  # ==========================================
+  publicacion-imagen:
+    needs: pruebas-y-calidad # SÓLO se ejecuta si pasó el Quality Gate de Sonar (IE6)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v4
+
+    - name: Probar Orquestación Local (Docker Compose)
       run: |
         docker compose up -d
         docker compose down
 
-    - name: 8. Iniciar sesión en GitHub Container Registry (GHCR)
+    - name: Iniciar sesión en GitHub Container Registry (GHCR)
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 9. Construir y Publicar Imagen Docker en la Nube
+    - name: Construir y Publicar Imagen Docker
       run: |
         IMAGE_ID=ghcr.io/${{ github.repository_owner }}/api-pasteleria-devops
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-        
         docker build -t $IMAGE_ID:latest .
         docker push $IMAGE_ID:latest
+
+  # ==========================================
+  # JOB 3: DESPLIEGUE AUTOMATIZADO Y OBSERVABILIDAD (CD)
+  # ==========================================
+  despliegue-kubernetes:
+    needs: publicacion-imagen
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v4
+
+    # Simulación o conexión real a cluster Kubernetes (IE2)
+    - name: Configurar Acceso al Clúster K8s
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
+        
+    - name: Aplicar Manifiestos de Kubernetes con Anotaciones de Monitoreo
+      run: |
+        # Aplicamos los manifiestos que exponen las métricas nativamente a Prometheus
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
