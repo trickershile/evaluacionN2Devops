@@ -38,17 +38,13 @@ jobs:
         # Generamos un reporte xml de cobertura para que SonarCloud lo use en el Dashboard
         python -m pytest --cov=. --cov-report=xml test_app.py
 
-    - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5)
+    - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5 y Mecanismo de Parada IE6)
       uses: SonarSource/sonarcloud-github-action@v2.3.0
+      with:
+        args: >
+          -Dsonar.qualitygate.wait=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    # MECANISMO DE PARADA CRÍTICA (IE6): Si el Quality Gate de SonarCloud falla, el pipeline se detiene aquí.
-    - name: 6. Validar Límites de Calidad (Quality Gate Break)
-      uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
-      timeout-minutes: 5
-      env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ==========================================
@@ -87,17 +83,22 @@ jobs:
     needs: publicacion-imagen
     runs-on: ubuntu-latest
     steps:
-    - name: Clonar el repositorio
+    - name: 1. Clonar el repositorio
       uses: actions/checkout@v4
 
-    # Simulación o conexión real a cluster Kubernetes (IE2)
-    - name: Configurar Acceso al Clúster K8s
+    # SOLUCIÓN DE ENTORNO SIMULADO: Crea un cluster de K8s real efímero dentro de GitHub Actions (No necesita secrets)
+    - name: 2. Levantar Clúster Kubernetes Local (Kind)
+      uses: helm/kind-action@v1.8.0
+      with:
+        cluster_name: cluster-pasteleria
+
+    - name: 3. Aplicar Manifiestos de Kubernetes con Anotaciones de Monitoreo (IE2)
       run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > ~/.kube/config
-        
-    - name: Aplicar Manifiestos de Kubernetes con Anotaciones de Monitoreo
-      run: |
-        # Aplicamos los manifiestos que exponen las métricas nativamente a Prometheus
+        # Aplicamos de forma automatizada los manifiestos que exponen las métricas a Prometheus
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
+
+    - name: 4. Verificar Estado del Despliegue en el Entorno
+      run: |
+        kubectl get deployments -n default
+        kubectl get services -n default
