@@ -1,9 +1,20 @@
 from flask import Flask, jsonify, request
 from flasgger import Swagger
+from prometheus_flask_exporter import PrometheusMetrics  # <-- NUEVA LIBRERÍA (IE1)
 
 app = Flask(__name__)
 # Inicializamos Swagger para la documentación gráfica
 swagger = Swagger(app)
+
+# =====================================================================
+# CONFIGURACIÓN DE OBSERVABILIDAD (IE1)
+# =====================================================================
+# Configura de manera automática la recolección de latencia, códigos HTTP (errores) 
+# y expone el endpoint público /metrics requerido por Prometheus
+metrics = PrometheusMetrics(app, group_by='endpoint')
+
+# Métricas estáticas de información de la aplicación para el Dashboard
+metrics.info('app_info', 'API Pasteleria DevOps', version='2.0.0')
 
 # Base de datos simulada en memoria
 productos = [
@@ -59,11 +70,9 @@ def create_producto():
     """
     data = request.get_json()
     
-    # Manejo de Errores: Validamos que envíen datos
     if not data or 'nombre' not in data or 'precio' not in data:
         return jsonify({"error": "Faltan datos requeridos (nombre, precio)"}), 400
     
-    # Manejo de Errores: Validamos que el precio sea un número
     if not isinstance(data['precio'], (int, float)):
         return jsonify({"error": "El precio debe ser un número válido"}), 400
 
@@ -105,10 +114,8 @@ def update_producto(id):
       404:
         description: Producto no encontrado
     """
-    # Buscamos si el producto existe
     producto = next((p for p in productos if p['id'] == id), None)
     
-    # Manejo de Errores: Si no existe, devolvemos 404 Not Found
     if not producto:
         return jsonify({"error": f"El producto con ID {id} no existe"}), 404
 
@@ -145,7 +152,6 @@ def delete_producto(id):
     global productos
     producto = next((p for p in productos if p['id'] == id), None)
     
-
     if not producto:
         return jsonify({"error": f"El producto con ID {id} no existe"}), 404
 
@@ -153,5 +159,5 @@ def delete_producto(id):
     return jsonify({"mensaje": "Producto eliminado exitosamente"}), 200
 
 if __name__ == '__main__':
-    # Apagamos el debug o lo controlamos por entorno para producción
-    app.run(debug=False, host='127.0.0.1', port=5000)
+    # CAMBIO CRÍTICO: host='0.0.0.0' para permitir conexiones desde Kubernetes (IE2)
+    app.run(debug=False, host='0.0.0.0', port=5000)

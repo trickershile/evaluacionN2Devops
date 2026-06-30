@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-pasteleria
+  namespace: default
+  labels:
+    app: api-pasteleria
+spec:
+  replicas: 2 # Alta disponibilidad simulada
+  selector:
+    matchLabels:
+      app: api-pasteleria
+  template:
+    metadata:
+      labels:
+        app: api-pasteleria
+      annotations:
+        # AUTOMATIZACIÓN DE OBSERVABILIDAD (IE2):
+        # Estas líneas le indican a Prometheus que registre este pod automáticamente
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000" # Ajustar al puerto en que corre su app Flask/FastAPI
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: api-pasteleria
+        # Reemplacen con la ruta exacta generada por su Job de publicación
+        image: ghcr.io/trickershile/api-pasteleria-devops:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        # Monitoreo de Recursos (IE1 e IE3): Permite a AWS/Prometheus medir uso de CPU y Memoria
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
