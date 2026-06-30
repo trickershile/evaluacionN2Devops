@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 1. Clonar el repositorio
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0 
 
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Clonar el repositorio
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Probar Orquestación Local (Docker Compose)
       run: |
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 1. Clonar el repositorio
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     # SOLUCIÓN DE ENTORNO SIMULADO: Crea un cluster de K8s real efímero dentro de GitHub Actions (No necesita secrets)
     - name: 2. Levantar Clúster Kubernetes Local (Kind)
