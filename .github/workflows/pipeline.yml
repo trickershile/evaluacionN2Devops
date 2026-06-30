@@ -63,7 +63,7 @@ jobs:
         docker compose down
 
     - name: Iniciar sesión en GitHub Container Registry (GHCR)
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
