@@ -38,17 +38,13 @@ jobs:
         # Generamos un reporte xml de cobertura para que SonarCloud lo use en el Dashboard
         python -m pytest --cov=. --cov-report=xml test_app.py
 
-    - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5)
+    - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5 y Mecanismo de Parada IE6)
       uses: SonarSource/sonarcloud-github-action@v2.3.0
+      with:
+        args: >
+          -Dsonar.qualitygate.wait=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    # MECANISMO DE PARADA CRÍTICA (IE6): Si el Quality Gate de SonarCloud falla, el pipeline se detiene aquí.
-    - name: 6. Validar Límites de Calidad (Quality Gate Break)
-      uses: SonarSource/sonarcloud-quality-gate-action@master
-      timeout-minutes: 5
-      env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ==========================================
