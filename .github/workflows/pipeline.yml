@@ -46,7 +46,7 @@ jobs:
 
     # MECANISMO DE PARADA CRÍTICA (IE6): Si el Quality Gate de SonarCloud falla, el pipeline se detiene aquí.
     - name: 6. Validar Límites de Calidad (Quality Gate Break)
-      uses: sonarsource/sonarcloud-quality-gate-action@v1.1.0
+      uses: SonarSource/sonarcloud-quality-gate-action@master
       timeout-minutes: 5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
