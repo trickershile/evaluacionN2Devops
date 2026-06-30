@@ -39,7 +39,7 @@ jobs:
         python -m pytest --cov=. --cov-report=xml test_app.py
 
     - name: 5. Análisis de Seguridad y Código con SonarCloud (IE5 y Mecanismo de Parada IE6)
-      uses: SonarSource/sonarcloud-github-action@v2.3.0
+      uses: SonarSource/sonarcloud-github-action@v5.0.0
       with:
         args: >
           -Dsonar.qualitygate.wait=true
